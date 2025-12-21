@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Lý Thư Viện</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>body { background-color: #f4f6f9; } .status-badge { font-size: 0.9em; }</style>
+</head>
+<body>
+
+<div class="container mt-4 position-relative">
+    <div class="position-absolute top-0 end-0">
+        <a href="/logout" class="btn btn-outline-danger btn-sm" onclick="return confirm('Đăng xuất?')">Logout</a>
+    </div>
+    <div class="text-center mb-4 pt-2">
+        <h2><i class="fa-solid fa-book-open text-primary"></i> Quản Lý Thư Viện</h2>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <div class="row align-items-center">
+                <div class="col-md-3"><h5 class="m-0 text-primary">Danh sách sách</h5></div>
+                <div class="col-md-5">
+                    <form action="/index" method="GET" class="d-flex">
+                        <input type="text" name="keyword" class="form-control me-2" placeholder="Tìm kiếm..." th:value="${keyword}">
+                        <button class="btn btn-primary" type="submit">Tìm</button>
+                    </form>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-success me-1" data-bs-toggle="modal" data-bs-target="#addBookModal">Thêm</button>
+                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#importModal">Import</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                <tr>
+                    <th>ID</th><th>Tên sách</th><th>Tác giả</th><th>Chi tiết</th><th>Số lượng</th><th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="book : ${books}">
+                    <td th:text="${book.id}"></td>
+                    <td class="fw-bold" th:text="${book.title}"></td>
+                    <td th:text="${book.author}"></td>
+                    <td>
+                        <small th:text="${book.category}"></small><br>
+                        <small th:text="${book.isbn}" class="text-muted"></small>
+                    </td>
+                    <td>
+                        <div>Tổng: <span th:text="${book.totalQuantity}"></span></div>
+                        <div class="text-success fw-bold">Còn: <span th:text="${book.availableQuantity}"></span></div>
+                        
+                        <button th:if="${book.totalQuantity > book.availableQuantity}" 
+                                class="btn btn-sm btn-link p-0"
+                                th:data-id="${book.id}"
+                                th:data-title="${book.title}"
+                                onclick="loadBorrowers(this.getAttribute('data-id'), this.getAttribute('data-title'))">
+                            Xem người mượn
+                        </button>
+                    </td>
+                    <td>
+                        <button th:if="${book.availableQuantity > 0}" 
+                                th:data-id="${book.id}"
+                                onclick="openBorrowModal(this.getAttribute('data-id'))"
+                                class="btn btn-sm btn-outline-primary">
+                            <i class="fa-solid fa-share"></i>
+                        </button>
+
+                        <button class="btn btn-sm btn-outline-info"
+                                th:data-id="${book.id}"
+                                th:data-title="${book.title}"
+                                th:data-author="${book.author}"
+                                th:data-isbn="${book.isbn}"
+                                th:data-category="${book.category}"
+                                th:data-publisher="${book.publisher}"
+                                th:data-year="${book.publishYear}"
+                                th:data-image="${book.image}"
+                                onclick="openEditModal(this)"> <i class="fa-solid fa-pen"></i>
+                        </button>
+
+                        <a th:href="@{/book/delete(id=${book.id})}" onclick="return confirm('Xóa sách?')" class="btn btn-sm btn-outline-danger">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addBookModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="/book/add" method="POST">
+                <div class="modal-header bg-success text-white"><h5 class="modal-title">Thêm sách (Builder)</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Tên (*)</label><input type="text" name="title" class="form-control" required>
+                            <label class="mt-2">Tác giả (*)</label><input type="text" name="author" class="form-control" required>
+                            <label class="mt-2">Số lượng (*)</label><input type="number" name="totalQuantity" class="form-control" value="1" required>
+                        </div>
+                        <div class="col-6">
+                            <label>Thể loại</label><input type="text" name="category" class="form-control">
+                            <label class="mt-2">NXB</label><input type="text" name="publisher" class="form-control">
+                            <label class="mt-2">Năm</label><input type="number" name="year" class="form-control">
+                            <label class="mt-2">ISBN</label><input type="text" name="isbn" class="form-control">
+                        </div>
+                    </div>
+                    <label class="mt-2">Link Ảnh</label><input type="text" name="image" class="form-control">
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-success">Lưu</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="/book/edit" method="POST">
+                <div class="modal-header bg-info text-white"><h5 class="modal-title">Sửa sách</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <input type="hidden" id="editId" name="id">
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Tên</label><input type="text" id="editTitle" name="title" class="form-control" required>
+                            <label>Tác giả</label><input type="text" id="editAuthor" name="author" class="form-control" required>
+                            <label>Thể loại</label><input type="text" id="editCat" name="category" class="form-control">
+                        </div>
+                        <div class="col-6">
+                            <label>NXB</label><input type="text" id="editPub" name="publisher" class="form-control">
+                            <label>Năm</label><input type="number" id="editYear" name="year" class="form-control">
+                            <label>ISBN</label><input type="text" id="editIsbn" name="isbn" class="form-control">
+                        </div>
+                    </div>
+                    <label>Link Ảnh</label><input type="text" id="editImg" name="image" class="form-control">
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-info text-white">Lưu</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="borrowModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <form action="/book/borrow" method="POST">
+                <div class="modal-header"><h5 class="modal-title">Mượn Sách</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <input type="hidden" id="borrowBookId" name="id">
+                    <label>Tên người mượn:</label><input type="text" name="borrowerName" class="form-control" required>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-primary w-100">Xác nhận</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="importModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/book/import" method="POST">
+                <div class="modal-header bg-warning"><h5 class="modal-title">Import (Adapter)</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <textarea name="legacyData" class="form-control" rows="5" placeholder="Java;John;123|Spring;Josh;456"></textarea>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-warning">Import</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="borrowerListModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white"><h5 class="modal-title">Danh sách mượn</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <table class="table table-sm"><thead class="table-light"><tr><th>Tên</th><th>Ngày</th><th>Hành động</th></tr></thead><tbody id="borrowerTableBody"></tbody></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Hàm Mượn sách
+    function openBorrowModal(id) { 
+        document.getElementById('borrowBookId').value = id; 
+        new bootstrap.Modal(document.getElementById('borrowModal')).show(); 
+    }
+    
+    // Hàm Sửa sách (CẬP NHẬT MỚI để đọc từ data-attributes)
+    function openEditModal(el) {
+        // Đọc dữ liệu từ nút bấm (this)
+        const id = el.getAttribute('data-id');
+        const title = el.getAttribute('data-title');
+        const author = el.getAttribute('data-author');
+        let isbn = el.getAttribute('data-isbn');
+        let cat = el.getAttribute('data-category');
+        let pub = el.getAttribute('data-publisher');
+        let year = el.getAttribute('data-year');
+        let img = el.getAttribute('data-image');
+
+        // Gán vào Form
+        document.getElementById('editId').value = id;
+        document.getElementById('editTitle').value = title;
+        document.getElementById('editAuthor').value = author;
+        document.getElementById('editIsbn').value = (isbn === 'null') ? '' : isbn;
+        document.getElementById('editCat').value = (cat === 'null') ? '' : cat;
+        document.getElementById('editPub').value = (pub === 'null') ? '' : pub;
+        document.getElementById('editYear').value = (year === 'null') ? '' : year;
+        document.getElementById('editImg').value = (img === 'null') ? '' : img;
+
+        new bootstrap.Modal(document.getElementById('editModal')).show();
+    }
+
+    // Hàm Load Danh sách mượn (AJAX)
+    function loadBorrowers(bookId, title) {
+        fetch('/api/borrows?bookId=' + bookId)
+            .then(r => r.json())
+            .then(data => {
+                let html = '';
+                if(data.length === 0) {
+                    html = '<tr><td colspan="3" class="text-center">Chưa có ai mượn</td></tr>';
+                } else {
+                    data.forEach(i => {
+                        html += `<tr>
+                                    <td>${i.name}</td>
+                                    <td>${i.date}</td>
+                                    <td><a href="/book/return?id=${i.requestId}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Trả sách?')">Trả</a></td>
+                                 </tr>`;
+                    });
+                }
+                document.getElementById('borrowerTableBody').innerHTML = html;
+                new bootstrap.Modal(document.getElementById('borrowerListModal')).show();
+            });
+    }
+</script>
+</body>
+</html>
