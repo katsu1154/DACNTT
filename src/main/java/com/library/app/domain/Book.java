@@ -16,7 +16,9 @@ public class Book {
     private Integer availableQuantity;  // Số lượng còn
 
     // Thông tin mở rộng
-    private String category;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
     private String publisher;
     private Integer publishYear;
     @Column(length = 1000)
@@ -37,8 +39,8 @@ public class Book {
     public void setTotalQuantity(Integer totalQuantity) { this.totalQuantity = totalQuantity; }
     public Integer getAvailableQuantity() { return availableQuantity; }
     public void setAvailableQuantity(Integer availableQuantity) { this.availableQuantity = availableQuantity; }
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
     public String getPublisher() { return publisher; }
     public void setPublisher(String publisher) { this.publisher = publisher; }
     public Integer getPublishYear() { return publishYear; }

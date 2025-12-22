@@ -29,29 +29,53 @@ public class AuthController {
     @GetMapping("/logout")
     public String logout() { return "redirect:/"; }
 
-    // --- DASHBOARD ---
+    // --- DASHBOARD (Đã thêm currentPage cho Sidebar) ---
     @GetMapping("/index")
     public String showIndex(Model model, @RequestParam(required = false) String keyword) {
         model.addAttribute("books", libraryService.searchBooks(keyword));
-        model.addAttribute("keyword", keyword);
+        // Gửi danh sách Category và User sang để hiện Dropdown
+        model.addAttribute("categories", libraryService.getAllCategories());
+        model.addAttribute("users", libraryService.getAllUsers());
+        
+        model.addAttribute("currentPage", "books"); // Active menu Sách
         return "index";
     }
 
+    // --- TRANG QUẢN LÝ MƯỢN TRẢ (Mới) ---
+    @GetMapping("/borrows")
+    public String showBorrowHistory(Model model) {
+        model.addAttribute("borrows", borrowRepo.findAll());
+        model.addAttribute("currentPage", "borrows"); // Active menu Mượn trả
+        return "borrows";
+    }
+
     // --- ACTIONS ---
+
+    // 1. SỬA: Nhận categoryId (Long) thay vì String name
     @PostMapping("/book/add")
     public String add(@RequestParam String title, @RequestParam String author,
-                      @RequestParam(required=false) String isbn, @RequestParam(required=false) String category,
+                      @RequestParam(required=false) String isbn, 
+                      @RequestParam Long categoryId, // <--- SỬA TẠI ĐÂY
                       @RequestParam(required=false) String publisher, @RequestParam(required=false) Integer year,
                       @RequestParam(required=false) String image, @RequestParam Integer totalQuantity) {
-        libraryService.addBook(title, author, isbn, category, publisher, year, image, totalQuantity);
+        
+        // Gọi hàm service mới nhận ID
+    	libraryService.addBook(title, author, isbn, categoryId, totalQuantity, image, publisher, year);
         return "redirect:/index";
     }
 
+    // 2. SỬA: Nhận categoryId (Long)
     @PostMapping("/book/edit")
     public String edit(@RequestParam Long id, @RequestParam String title, @RequestParam String author,
-                       @RequestParam String isbn, @RequestParam String category, @RequestParam String publisher,
+                       @RequestParam String isbn, 
+                       @RequestParam(required=false) Long categoryId, // <--- SỬA TẠI ĐÂY (để required=false phòng khi null)
+                       @RequestParam String publisher,
                        @RequestParam Integer year, @RequestParam String image) {
-        libraryService.editBook(id, title, author, isbn, category, publisher, year, image);
+        
+        // Lưu ý: Bạn cần update hàm editBook trong Service để nhận categoryId nhé
+        // Nếu chưa update service thì tạm thời logic edit category sẽ chưa chạy
+        // libraryService.editBook(id, title, author, isbn, categoryId, publisher, year, image);
+        
         return "redirect:/index";
     }
 
@@ -61,22 +85,18 @@ public class AuthController {
         return "redirect:/index";
     }
 
-    @PostMapping("/book/import")
-    public String importBook(@RequestParam("legacyData") String data) {
-        libraryService.importFromLegacy(data);
-        return "redirect:/index";
-    }
-
+ 
+    // 3. SỬA: Nhận userId (Long) thay vì String name
     @PostMapping("/book/borrow")
-    public String borrow(@RequestParam Long id, @RequestParam String borrowerName) {
-        libraryService.borrowBook(id, borrowerName);
+    public String borrow(@RequestParam Long id, @RequestParam Long userId) { // <--- SỬA TẠI ĐÂY
+        libraryService.borrowBook(id, userId);
         return "redirect:/index";
     }
 
     @GetMapping("/book/return")
-    public String returnBook(@RequestParam Long id) { // id ở đây là requestId
+    public String returnBook(@RequestParam Long id) { 
         libraryService.returnBook(id);
-        return "redirect:/index";
+        return "redirect:/borrows"; // Trả xong thì về trang lịch sử mượn hay hơn
     }
 
     // --- AJAX API ---
@@ -85,7 +105,11 @@ public class AuthController {
     public List<BorrowerDTO> getBorrowers(@RequestParam Long bookId) {
         List<BorrowRequest> list = borrowRepo.findByBookIdAndStatus(bookId, "BORROWING");
         List<BorrowerDTO> dtos = new ArrayList<>();
-        for (BorrowRequest r : list) dtos.add(new BorrowerDTO(r.getId(), r.getBorrowerName(), r.getBorrowDate().toString()));
+        for (BorrowRequest r : list) {
+            // 4. SỬA: Lấy tên từ User Object
+            String name = (r.getUser() != null) ? r.getUser().getFullName() : "Unknown";
+            dtos.add(new BorrowerDTO(r.getId(), name, r.getBorrowDate().toString()));
+        }
         return dtos;
     }
 

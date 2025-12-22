@@ -4,8 +4,11 @@ public class BookBuilder {
     private String title;
     private String author;
     private String isbn;
-    private Integer totalQuantity = 1; // Mặc định
-    private String category;
+    private Integer totalQuantity = 1;
+    
+    // --- SỬA Ở ĐÂY: Đổi từ String sang Category ---
+    private Category category; 
+    
     private String publisher;
     private Integer publishYear;
     private String image;
@@ -17,7 +20,13 @@ public class BookBuilder {
 
     public BookBuilder setIsbn(String isbn) { this.isbn = isbn; return this; }
     public BookBuilder setTotalQuantity(Integer quantity) { this.totalQuantity = quantity; return this; }
-    public BookBuilder setCategory(String category) { this.category = category; return this; }
+    
+    // --- SỬA Ở ĐÂY: Nhận vào đối tượng Category ---
+    public BookBuilder setCategory(Category category) { 
+        this.category = category; 
+        return this; 
+    }
+    
     public BookBuilder setPublisher(String publisher) { this.publisher = publisher; return this; }
     public BookBuilder setPublishYear(Integer year) { this.publishYear = year; return this; }
     public BookBuilder setImage(String image) { this.image = image; return this; }
@@ -28,8 +37,11 @@ public class BookBuilder {
         book.setAuthor(this.author);
         book.setIsbn(this.isbn);
         book.setTotalQuantity(this.totalQuantity);
-        book.setAvailableQuantity(this.totalQuantity); // Ban đầu: Tổng = Còn lại
+        book.setAvailableQuantity(this.totalQuantity);
+        
+        // Bây giờ dòng này mới chạy đúng (Category gán cho Category)
         book.setCategory(this.category);
+        
         book.setPublisher(this.publisher);
         book.setPublishYear(this.publishYear);
         book.setImage(this.image);

@@ -12,7 +12,9 @@ public class BorrowRequest {
     @JoinColumn(name = "book_id")
     private Book book;
 
-    private String borrowerName;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
     private LocalDate borrowDate;
     private LocalDate returnDate;
     private String status; // BORROWING, RETURNED
@@ -24,8 +26,8 @@ public class BorrowRequest {
     public void setId(Long id) { this.id = id; }
     public Book getBook() { return book; }
     public void setBook(Book book) { this.book = book; }
-    public String getBorrowerName() { return borrowerName; }
-    public void setBorrowerName(String borrowerName) { this.borrowerName = borrowerName; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
     public LocalDate getBorrowDate() { return borrowDate; }
     public void setBorrowDate(LocalDate borrowDate) { this.borrowDate = borrowDate; }
     public LocalDate getReturnDate() { return returnDate; }
