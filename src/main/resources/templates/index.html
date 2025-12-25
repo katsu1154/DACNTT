@@ -279,13 +279,11 @@
             new bootstrap.Modal(document.getElementById('borrowModal')).show(); 
         }
 
-        // SỬA 3: Cập nhật hàm Javascript để lấy Total Quantity
         function openEditModal(el) {
             document.getElementById('editId').value = el.getAttribute('data-id');
             document.getElementById('editTitle').value = el.getAttribute('data-title');
             document.getElementById('editAuthor').value = el.getAttribute('data-author');
 
-            // Lấy dữ liệu từ attribute
             let totalQty = el.getAttribute('data-total-quantity'); 
             let isbn = el.getAttribute('data-isbn');
             let catId = el.getAttribute('data-category-id');
@@ -293,7 +291,6 @@
             let year = el.getAttribute('data-year');
             let img = el.getAttribute('data-image');
 
-            // Đổ vào Form
             document.getElementById('editTotalQty').value = totalQty;
             document.getElementById('editIsbn').value = (isbn === 'null') ? '' : isbn;
             document.getElementById('editCategoryId').value = (catId === 'null') ? '' : catId;

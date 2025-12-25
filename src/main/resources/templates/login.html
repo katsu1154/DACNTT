@@ -108,11 +108,10 @@
         const pass = document.getElementById('password').value;
         const errorMsg = document.getElementById('error-msg');
 
-        // Logic check demo
         if (user === 'admin' && pass === '123') {
             const btn = document.querySelector('.btn-login');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...';
-            btn.disabled = true; // Chặn bấm liên tục
+            btn.disabled = true; 
 
             setTimeout(() => {
                 window.location.href = 'index';

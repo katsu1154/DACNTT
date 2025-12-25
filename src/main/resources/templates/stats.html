@@ -37,7 +37,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 	<script th:inline="javascript">
-	        // Nhận 3 biến từ Controller
 	        var labelDates = /*[[${dates}]]*/ [];
 	        var dataBorrow = /*[[${borrowCounts}]]*/ [];
 	        var dataReturn = /*[[${returnCounts}]]*/ [];
@@ -48,19 +47,19 @@
 	            new Chart(ctx, {
 	                type: 'bar',
 	                data: {
-	                    labels: labelDates, // Trục ngày chung
+	                    labels: labelDates, 
 	                    datasets: [
 	                        {
 	                            label: 'Sách Mượn',
 	                            data: dataBorrow,
-	                            backgroundColor: 'rgba(54, 162, 235, 0.6)', // Xanh dương
+	                            backgroundColor: 'rgba(54, 162, 235, 0.6)', 
 	                            borderColor: 'rgba(54, 162, 235, 1)',
 	                            borderWidth: 1
 	                        },
 	                        {
-	                            label: 'Sách Trả', // Cột mới
+	                            label: 'Sách Trả', 
 	                            data: dataReturn,
-	                            backgroundColor: 'rgba(255, 99, 132, 0.6)', // Màu Đỏ hồng
+	                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
 	                            borderColor: 'rgba(255, 99, 132, 1)',
 	                            borderWidth: 1
 	                        }

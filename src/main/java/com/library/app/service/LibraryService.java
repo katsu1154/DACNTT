@@ -141,26 +141,25 @@ public class LibraryService {
     	 		book.setIsbn(isbn);
 
     	 		if (categoryId != null) {
-    Category cat = categoryRepository.findById(categoryId).orElse(null);
-    book.setCategory(cat);
-}
+    	 			Category cat = categoryRepository.findById(categoryId).orElse(null);
+    	 			book.setCategory(cat);
+    	 		}
 
-book.setPublisher(publisher);
-book.setPublishYear(year);
-book.setImage(img);
+    	 		book.setPublisher(publisher);
+    	 		book.setPublishYear(year);
+    	 		book.setImage(img);
 
-if (totalQty != null) {
-    int difference = totalQty - book.getTotalQuantity();
+    	 		if (totalQty != null) {
+    	 			int difference = totalQty - book.getTotalQuantity();
     
-    book.setTotalQuantity(totalQty);
+    	 			book.setTotalQuantity(totalQty);
 
-    book.setAvailableQuantity(book.getAvailableQuantity() + difference);
-}
+    	 			book.setAvailableQuantity(book.getAvailableQuantity() + difference);
+    	 		}
 
-
-bookRepository.save(book);
-}
-}
+    	 		bookRepository.save(book);
+    	 	}
+     }
 
     @Transactional 
     public void deleteBook(Long id) {
