@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thống Kê Mượn Sách</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f6f9; }
+        .main-content { margin-left: 250px; padding: 20px; transition: 0.3s; }
+    </style>
+</head>
+<body>
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div class="container-fluid">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="text-primary fw-bold mb-0">Biểu Đồ Thống Kê</h3>
+            </div>
+
+            <div class="card shadow border-0">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 text-secondary">Số lượng sách được mượn theo ngày</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="borrowChart" style="max-height: 400px;"></canvas>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+	<script th:inline="javascript">
+	        // Nhận 3 biến từ Controller
+	        var labelDates = /*[[${dates}]]*/ [];
+	        var dataBorrow = /*[[${borrowCounts}]]*/ [];
+	        var dataReturn = /*[[${returnCounts}]]*/ [];
+
+	        const ctx = document.getElementById('borrowChart');
+
+	        if (ctx) {
+	            new Chart(ctx, {
+	                type: 'bar',
+	                data: {
+	                    labels: labelDates, // Trục ngày chung
+	                    datasets: [
+	                        {
+	                            label: 'Sách Mượn',
+	                            data: dataBorrow,
+	                            backgroundColor: 'rgba(54, 162, 235, 0.6)', // Xanh dương
+	                            borderColor: 'rgba(54, 162, 235, 1)',
+	                            borderWidth: 1
+	                        },
+	                        {
+	                            label: 'Sách Trả', // Cột mới
+	                            data: dataReturn,
+	                            backgroundColor: 'rgba(255, 99, 132, 0.6)', // Màu Đỏ hồng
+	                            borderColor: 'rgba(255, 99, 132, 1)',
+	                            borderWidth: 1
+	                        }
+	                    ]
+	                },
+	                options: {
+	                    responsive: true,
+	                    scales: {
+	                        y: {
+	                            beginAtZero: true,
+	                            ticks: { stepSize: 1 }
+	                        }
+	                    }
+	                }
+	            });
+	        }
+	    </script>
+</body>
+</html>

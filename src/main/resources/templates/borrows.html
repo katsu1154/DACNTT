@@ -17,17 +17,25 @@
             <div class="card shadow border-0">
                 <div class="card-body">
                     <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>ID</th>
-                                <th>Người Mượn</th>
-                                <th>Sách</th>
-                                <th>Ngày Mượn</th>
-                                <th>Ngày Trả</th>
-                                <th>Trạng Thái</th>
-                                <th>Hành Động</th>
-                            </tr>
-                        </thead>
+						<thead class="table-light">
+						    <tr>
+						        <th>ID</th>
+						        <th>Người Mượn</th>
+						        <th>Sách</th>
+						        <th>
+						            <a th:href="@{'/borrows?pageNo=' + ${currentPage} + '&sortField=borrowDate&sortDir=' + ${reverseSortDir}}" class="text-dark text-decoration-none">
+						                Ngày Mượn <i class="fa-solid fa-sort"></i>
+						            </a>
+						        </th>
+						        <th>Ngày Trả</th>
+						        <th>
+						            <a th:href="@{'/borrows?pageNo=' + ${currentPage} + '&sortField=status&sortDir=' + ${reverseSortDir}}" class="text-dark text-decoration-none">
+						                Trạng Thái <i class="fa-solid fa-sort"></i>
+						            </a>
+						        </th>
+						        <th>Hành Động</th>
+						    </tr>
+						</thead>
                         <tbody>
                             <tr th:each="req : ${borrows}">
                                 <td th:text="${req.id}">1</td>
@@ -58,6 +66,24 @@
                             </tr>
                         </tbody>
                     </table>
+					<div th:if="${totalPages > 1}" class="d-flex justify-content-between align-items-center mt-3">
+					    <div class="small text-muted">Tổng: [[${totalItems}]] phiếu mượn</div>
+					    <nav>
+					        <ul class="pagination mb-0 shadow-sm">
+					            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+					                <a class="page-link" th:href="@{'/borrows?pageNo=' + ${currentPage - 1} + '&sortField=' + ${sortField} + '&sortDir=' + ${sortDir}}"><i class="fa-solid fa-angle-left"></i></a>
+					            </li>
+					            
+					            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}" th:classappend="${currentPage == i} ? 'active'">
+					                <a class="page-link" th:text="${i}" th:href="@{'/borrows?pageNo=' + ${i} + '&sortField=' + ${sortField} + '&sortDir=' + ${sortDir}}"></a>
+					            </li>
+					            
+					            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+					                <a class="page-link" th:href="@{'/borrows?pageNo=' + ${currentPage + 1} + '&sortField=' + ${sortField} + '&sortDir=' + ${sortDir}}"><i class="fa-solid fa-angle-right"></i></a>
+					            </li>
+					        </ul>
+					    </nav>
+					</div>
                 </div>
             </div>
         </div>

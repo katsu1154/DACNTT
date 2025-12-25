@@ -17,11 +17,10 @@ public class BorrowRequest {
     private User user;
     private LocalDate borrowDate;
     private LocalDate returnDate;
-    private String status; // BORROWING, RETURNED
+    private String status; 
 
     public BorrowRequest() {}
 
-    // Getters & Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Book getBook() { return book; }

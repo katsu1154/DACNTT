@@ -1,18 +1,26 @@
 package com.library.app.domain;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
-@Table(name = "users") // Tránh trùng tên bảng User của hệ thống SQL
+@Table(name = "users")
 public class User {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(name = "full_name")
     private String fullName;
     private String email;
-
-    public User() {}
-    public User(String fullName, String email) { this.fullName = fullName; this.email = email; }
-
-    // Getters & Setters
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<BorrowRequest> borrowRequests;
+    public List<BorrowRequest> getBorrowRequests() { return borrowRequests; }
+    public void setBorrowRequests(List<BorrowRequest> borrowRequests) { this.borrowRequests = borrowRequests; }
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getFullName() { return fullName; }

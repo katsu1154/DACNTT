@@ -5,8 +5,6 @@ public class BookBuilder {
     private String author;
     private String isbn;
     private Integer totalQuantity = 1;
-    
-    // --- SỬA Ở ĐÂY: Đổi từ String sang Category ---
     private Category category; 
     
     private String publisher;
@@ -20,8 +18,6 @@ public class BookBuilder {
 
     public BookBuilder setIsbn(String isbn) { this.isbn = isbn; return this; }
     public BookBuilder setTotalQuantity(Integer quantity) { this.totalQuantity = quantity; return this; }
-    
-    // --- SỬA Ở ĐÂY: Nhận vào đối tượng Category ---
     public BookBuilder setCategory(Category category) { 
         this.category = category; 
         return this; 
@@ -38,10 +34,7 @@ public class BookBuilder {
         book.setIsbn(this.isbn);
         book.setTotalQuantity(this.totalQuantity);
         book.setAvailableQuantity(this.totalQuantity);
-        
-        // Bây giờ dòng này mới chạy đúng (Category gán cho Category)
         book.setCategory(this.category);
-        
         book.setPublisher(this.publisher);
         book.setPublishYear(this.publishYear);
         book.setImage(this.image);
