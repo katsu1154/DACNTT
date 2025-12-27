@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Lý Độc Giả</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f6f9; }
+        .main-content { margin-left: 250px; padding: 20px; transition: 0.3s; }
+    </style>
+</head>
+<body>
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div class="main-content">
+        <div class="container-fluid">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="text-primary fw-bold mb-0">Danh sách Độc giả</h3>
+                
+                <div class="d-flex gap-2">
+                    <form action="/users" method="GET" class="d-flex">
+                        <input type="text" name="keyword" class="form-control me-2" 
+                               placeholder="Tìm tên, email..." th:value="${keyword}" style="width: 250px;">
+                        <button class="btn btn-primary" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </form>
+                    
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <i class="fa-solid fa-user-plus"></i> Thêm Độc giả
+                    </button>
+                </div>
+            </div>
+
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fa-solid fa-check-circle me-2"></i>
+                <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="card shadow border-0">
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">ID</th>
+                                <th>Họ và Tên</th>
+                                <th>Email</th>
+                                <th>Lịch sử mượn</th>
+                                <th class="text-end pe-3">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="u : ${users}">
+                                <td class="ps-3 fw-bold text-muted" th:text="${u.id}">1</td>
+                                
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                                            <i class="fa-solid fa-user text-secondary"></i>
+                                        </div>
+                                        <span class="fw-bold text-primary" th:text="${u.fullName}">Tên User</span>
+                                    </div>
+                                </td>
+
+                                <td th:text="${u.email}">email@example.com</td>
+
+                                <td>
+                                    <span class="badge bg-info text-dark" 
+                                          th:text="${u.borrowRequests != null ? u.borrowRequests.size() : 0} + ' lượt'">
+                                        0 lượt
+                                    </span>
+                                </td>
+
+                                <td class="text-end pe-3">
+                                    <button class="btn btn-sm btn-outline-warning" title="Sửa thông tin"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editUserModal"
+                                            th:attr="data-id=${u.id}, data-name=${u.fullName}, data-email=${u.email}"
+                                            onclick="fillEditForm(this)">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+
+                                    <a th:href="@{/user/delete/{id}(id=${u.id})}" 
+                                       class="btn btn-sm btn-outline-danger" 
+                                       title="Xóa"
+                                       onclick="return confirm('Bạn có chắc chắn muốn xóa độc giả này không? Hành động này không thể hoàn tác.');">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="/user/add" method="POST">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title">Thêm Độc Giả Mới</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Họ và Tên (*)</label>
+                            <input type="text" name="fullName" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email (*)</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-success">Lưu Độc Giả</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="/user/update" method="POST">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title">Cập nhật thông tin</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="editId" name="id">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Họ và Tên</label>
+                            <input type="text" id="editName" name="fullName" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email</label>
+                            <input type="email" id="editEmail" name="email" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-warning">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function fillEditForm(button) {
+            var id = button.getAttribute("data-id");
+            var name = button.getAttribute("data-name");
+            var email = button.getAttribute("data-email");
+
+            document.getElementById("editId").value = id;
+            document.getElementById("editName").value = name;
+            document.getElementById("editEmail").value = email;
+        }
+    </script>
+</body>
+</html>

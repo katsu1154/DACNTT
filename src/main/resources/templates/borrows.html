@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch Sử Mượn Trả</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body style="background-color: #f4f6f9;">
+
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <div style="margin-left: 250px; padding: 20px;">
+        <div class="container-fluid">
+            <h3 class="mb-4 text-primary fw-bold">Quản Lý Mượn Trả</h3>
+
+            <div class="card shadow border-0">
+                <div class="card-body">
+                    <table class="table table-hover align-middle">
+						<thead class="table-light">
+						    <tr>
+						        <th>ID</th>
+						        <th>Người Mượn</th>
+						        <th>Sách</th>
+						        <th>
+						            <a th:href="@{'/borrows?pageNo=' + ${currentPage} + '&sortField=borrowDate&sortDir=' + ${reverseSortDir}}" class="text-dark text-decoration-none">
+						                Ngày Mượn <i class="fa-solid fa-sort"></i>
+						            </a>
+						        </th>
+						        <th>Ngày Trả</th>
+						        <th>
+						            <a th:href="@{'/borrows?pageNo=' + ${currentPage} + '&sortField=status&sortDir=' + ${reverseSortDir}}" class="text-dark text-decoration-none">
+						                Trạng Thái <i class="fa-solid fa-sort"></i>
+						            </a>
+						        </th>
+						        <th>Hành Động</th>
+						    </tr>
+						</thead>
+                        <tbody>
+                            <tr th:each="req : ${borrows}">
+                                <td th:text="${req.id}">1</td>
+                                
+                                <td>
+                                    <span class="fw-bold" th:text="${req.user.fullName}"></span><br>
+                                    <small class="text-muted" th:text="${req.user.email}"></small>
+                                </td>
+
+                                <td th:text="${req.book.title}">Tên sách</td>
+
+                                <td th:text="${req.borrowDate}">2023-12-20</td>
+                                <td th:text="${req.returnDate}"></td>
+                                
+                                <td>
+                                    <span th:if="${req.status == 'BORROWING'}" class="badge bg-warning text-dark">Đang mượn</span>
+                                    <span th:if="${req.status == 'RETURNED'}" class="badge bg-success">Đã trả</span>
+                                </td>
+
+                                <td>
+                                    <a th:if="${req.status == 'BORROWING'}" 
+                                       th:href="@{/book/return(id=${req.id})}" 
+                                       class="btn btn-sm btn-outline-primary"
+                                       onclick="return confirm('Xác nhận khách đã trả sách?')">
+                                        <i class="fa-solid fa-check"></i> Trả sách
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+					<div th:if="${totalPages > 1}" class="d-flex justify-content-between align-items-center mt-3">
+					    <div class="small text-muted">Tổng: [[${totalItems}]] phiếu mượn</div>
+					    <nav>
+					        <ul class="pagination mb-0 shadow-sm">
+					            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+					                <a class="page-link" th:href="@{'/borrows?pageNo=' + ${currentPage - 1} + '&sortField=' + ${sortField} + '&sortDir=' + ${sortDir}}"><i class="fa-solid fa-angle-left"></i></a>
+					            </li>
+					            
+					            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}" th:classappend="${currentPage == i} ? 'active'">
+					                <a class="page-link" th:text="${i}" th:href="@{'/borrows?pageNo=' + ${i} + '&sortField=' + ${sortField} + '&sortDir=' + ${sortDir}}"></a>
+					            </li>
+					            
+					            <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+					                <a class="page-link" th:href="@{'/borrows?pageNo=' + ${currentPage + 1} + '&sortField=' + ${sortField} + '&sortDir=' + ${sortDir}}"><i class="fa-solid fa-angle-right"></i></a>
+					            </li>
+					        </ul>
+					    </nav>
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
